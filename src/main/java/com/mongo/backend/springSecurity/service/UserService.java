@@ -1,14 +1,13 @@
 package com.mongo.backend.springSecurity.service;
 
 
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Map;
 
-import javax.annotation.PostConstruct;
-
 import com.mongo.backend.springSecurity.model.User;
-import com.mongo.backend.springSecurity.model.security.Role;
+import com.mongo.backend.springSecurity.repository.UserRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
@@ -17,22 +16,23 @@ import reactor.core.publisher.Mono;
  * 
  */
 @Service
+
 public class UserService {
+    private static final Logger logger = (Logger) LoggerFactory.getLogger(UserService.class);
 
     private Map<String, User> data;
-
-    @PostConstruct
-    public void init() {
-        data = new HashMap<>();
-
-        //username:passwowrd -> user:user
-        data.put("user", new User("user", "cBrlgyL2GI2GINuLUUwgojITuIufFycpLG4490dhGtY=", true, Arrays.asList(Role.ROLE_USER)));
-
-        //username:passwowrd -> admin:admin
-        data.put("admin", new User("admin", "dQNjUIMorJb8Ubj2+wVGYp6eAeYkdekqAcnYp+aRq5w=", true, Arrays.asList(Role.ROLE_ADMIN)));
-    }
+    @Autowired
+    private UserRepository userRepository;
 
     public Mono<User> findByUsername(String username) {
-        return Mono.justOrEmpty(data.get(username));
+        return userRepository.findByUsername(username)
+                .doOnSubscribe(s -> logger.info("Finding User With Username {}", username))
+                .doOnNext(q -> logger.info("Found: {}", q));
     }
+    public Mono<User> saveUser(User user) {
+        return userRepository.save(user)
+                .doOnSubscribe(s -> logger.info("Creating {}", user))
+                .doOnNext(q -> logger.info("Created {}", q));
+    }
+
 }

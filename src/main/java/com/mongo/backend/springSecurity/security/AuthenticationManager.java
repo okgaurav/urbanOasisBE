@@ -1,14 +1,22 @@
 package com.mongo.backend.springSecurity.security;
 
+import com.mongo.backend.springSecurity.model.AuthenticationRequest;
+import com.mongo.backend.springSecurity.model.AuthenticationResponse;
+import com.mongo.backend.springSecurity.model.User;
+import com.mongo.backend.springSecurity.repository.UserRepository;
 import io.jsonwebtoken.Claims;
 import lombok.AllArgsConstructor;
+import com.mongo.backend.springSecurity.model.Role;
 
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
+
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 @Component
@@ -16,7 +24,9 @@ import java.util.stream.Collectors;
 public class AuthenticationManager implements ReactiveAuthenticationManager {
 
     private  JWTUtil jwtUtil;
+    private final PasswordEncoder passwordEncoder;
 
+    private UserRepository userRepository;
     @Override
     @SuppressWarnings("unchecked")
     public Mono<Authentication> authenticate(Authentication authentication) {
@@ -34,5 +44,17 @@ public class AuthenticationManager implements ReactiveAuthenticationManager {
                     rolesMap.stream().map(SimpleGrantedAuthority::new).collect(Collectors.toList())
                 );
             });
+    }
+    public AuthenticationResponse register(AuthenticationRequest request) {
+        var user = new User();
+                user.setUsername(request.getUsername());
+                user.setPassword(passwordEncoder.encode(request.getPassword()));
+                user.setRoles(Arrays.asList(Role.ROLE_USER));
+
+        userRepository.save(user);
+        var jwtToken = jwtUtil.generateToken(user);
+        return AuthenticationResponse.builder()
+                .token(jwtToken)
+                .build();
     }
 }
