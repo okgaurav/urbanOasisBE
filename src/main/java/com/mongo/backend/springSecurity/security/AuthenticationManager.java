@@ -2,11 +2,11 @@ package com.mongo.backend.springSecurity.security;
 
 import com.mongo.backend.springSecurity.model.AuthenticationRequest;
 import com.mongo.backend.springSecurity.model.AuthenticationResponse;
-import com.mongo.backend.springSecurity.model.User;
+import com.mongo.backend.springSecurity.model.entity.User;
 import com.mongo.backend.springSecurity.repository.UserRepository;
 import io.jsonwebtoken.Claims;
 import lombok.AllArgsConstructor;
-import com.mongo.backend.springSecurity.model.Role;
+import com.mongo.backend.springSecurity.model.entity.Role;
 
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -19,6 +19,9 @@ import reactor.core.publisher.Mono;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static com.mongo.backend.springSecurity.model.entity.Role.ROLE_USER;
+
 @Component
 @AllArgsConstructor
 public class AuthenticationManager implements ReactiveAuthenticationManager {
@@ -49,7 +52,7 @@ public class AuthenticationManager implements ReactiveAuthenticationManager {
         var user = new User();
                 user.setUsername(request.getUsername());
                 user.setPassword(passwordEncoder.encode(request.getPassword()));
-                user.setRoles(Arrays.asList(Role.ROLE_USER));
+                user.setRoles(Arrays.asList(ROLE_USER));
 
         userRepository.save(user);
         var jwtToken = jwtUtil.generateToken(user);

@@ -8,15 +8,17 @@ import java.util.Map;
 
 import javax.annotation.PostConstruct;
 
-import com.mongo.backend.springSecurity.model.User;
+import com.mongo.backend.springSecurity.model.entity.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
+@Slf4j
 public class JWTUtil {
 
     @Value("${springbootwebfluxjjwt.jjwt.secret}")
@@ -68,7 +70,6 @@ public class JWTUtil {
                 .signWith(key)
                 .compact();
     }
-
     public Boolean validateToken(String token) {
         return !isTokenExpired(token);
     }

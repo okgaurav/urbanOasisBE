@@ -1,4 +1,4 @@
-package com.mongo.backend.springSecurity.model;
+package com.mongo.backend.springSecurity.model.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -24,15 +24,17 @@ public class User implements UserDetails {
 
     private String username;
 
+    @Getter @Setter
+    private String email;
     private String password;
-
+    @Getter @Setter
+    private Department department;
     @Getter @Setter
     private Boolean enabled;
 
     @Getter @Setter
     private List<Role> roles;
 
-    @Override
     public String getUsername() {
         return username;
     }

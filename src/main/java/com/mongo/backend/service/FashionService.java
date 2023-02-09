@@ -15,7 +15,7 @@ public class FashionService {
     private static final Logger logger = (Logger) LoggerFactory.getLogger(FashionService.class);
 
     public Flux<Fashion> findAll(){
-        return (Flux<Fashion>) fashionRepository.findAll()
+        return fashionRepository.findAll()
                 .doOnSubscribe(s -> logger.debug("Searching Users within {}"))
                 .doOnComplete(() -> logger.debug("Users within {} retrieved"));
     }

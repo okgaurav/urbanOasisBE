@@ -3,7 +3,7 @@ package com.mongo.backend.springSecurity.service;
 
 import java.util.Map;
 
-import com.mongo.backend.springSecurity.model.User;
+import com.mongo.backend.springSecurity.model.entity.User;
 import com.mongo.backend.springSecurity.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

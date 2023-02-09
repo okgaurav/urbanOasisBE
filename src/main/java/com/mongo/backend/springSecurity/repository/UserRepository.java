@@ -1,6 +1,6 @@
 package com.mongo.backend.springSecurity.repository;
 
-import com.mongo.backend.springSecurity.model.User;
+import com.mongo.backend.springSecurity.model.entity.User;
 import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
 import reactor.core.publisher.Mono;
 

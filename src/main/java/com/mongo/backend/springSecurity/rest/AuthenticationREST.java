@@ -3,27 +3,30 @@ package com.mongo.backend.springSecurity.rest;
 
 import com.mongo.backend.springSecurity.model.AuthenticationRequest;
 import com.mongo.backend.springSecurity.model.AuthenticationResponse;
-import com.mongo.backend.springSecurity.model.User;
-import com.mongo.backend.springSecurity.model.Role;
+import com.mongo.backend.springSecurity.model.SignupRequest;
+import com.mongo.backend.springSecurity.model.entity.User;
 import com.mongo.backend.springSecurity.security.AuthenticationManager;
 import com.mongo.backend.springSecurity.security.JWTUtil;
-import com.mongo.backend.springSecurity.security.PBKDF2Encoder;
 
+import com.mongo.backend.springSecurity.security.PBKDF2Encoder;
 import com.mongo.backend.springSecurity.service.UserService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-
 import lombok.AllArgsConstructor;
 import reactor.core.publisher.Mono;
 
 import java.util.Arrays;
 
+import static com.mongo.backend.springSecurity.model.entity.Role.ROLE_USER;
+
 
 @AllArgsConstructor
 @RestController
+@Slf4j
 public class AuthenticationREST {
 
     private JWTUtil jwtUtil;
@@ -38,21 +41,27 @@ public class AuthenticationREST {
             .map(userDetails -> ResponseEntity.ok(new AuthenticationResponse(jwtUtil.generateToken(userDetails))))
             .switchIfEmpty(Mono.just(ResponseEntity.status(HttpStatus.UNAUTHORIZED).build()));
     }
-//    @PostMapping("/signup")
-//    public ResponseEntity<AuthenticationResponse> authenticate(
-//            @RequestBody AuthenticationRequest request
-//    ) {
-//        return ResponseEntity.ok(authenticationManager.register(request));
-//    }
     @PostMapping("/v1/register")
-    public Mono<ResponseEntity<AuthenticationResponse>> signup(@RequestBody AuthenticationRequest ar) {
+    public Mono<ResponseEntity<AuthenticationResponse>> signup(@RequestBody SignupRequest ar) {
         var user = new User();
-        user.setUsername(ar.getUsername());
-        user.setPassword(passwordEncoder.encode(ar.getPassword()));
-        user.setRoles(Arrays.asList(Role.ROLE_USER));
+        var userName = ar.getEmail().substring(0,ar.getEmail().indexOf("@"));
 
+        user.setUsername(userName);
+        user.setEmail(ar.getEmail());
+        user.setDepartment(ar.getDepartment());
+        user.setPassword(passwordEncoder.encode(ar.getPassword()));
+        user.setRoles(Arrays.asList(ROLE_USER));
         return userService.saveUser(user)
                 .map(userDetails -> ResponseEntity.ok(new AuthenticationResponse(jwtUtil.generateToken(userDetails))))
                 .switchIfEmpty(Mono.just(ResponseEntity.status(HttpStatus.UNAUTHORIZED).build()));
-}
+    }
+//    public List<Role> setRoleUsingDepartment(Department department){
+//        List<Role> roleList = Arrays.asList(USER);
+//        if(SALES.name().equals(department.name()))
+//            roleList.add(SALE);
+//        if(IT.name().equals(department.name()))
+//            roleList.add(DEVELOPER);
+//        log.debug(roleList.toString());
+//        return (roleList);
+//    }
 }

@@ -14,14 +14,14 @@ public class Fashion {
     private String uniqueId;
     private String productName;
 
-    private FashionCategory catCode;
-    private String pId;
-    private String tags;
-    private Double retailPrice;
-    private Double discountedPrice;
-    private Double discount;
-    private Double description;
-    private Double ratingCount;
-    private Double rating;
-    private String brandCode;
+//    private FashionCategory catCode;
+//    private String pId;
+//    private String tags;
+//    private Double retailPrice;
+//    private Double discountedPrice;
+//    private Double discount;
+//    private Double description;
+//    private Double ratingCount;
+//    private Double rating;
+//    private String brandCode;
 }

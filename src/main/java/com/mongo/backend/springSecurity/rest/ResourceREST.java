@@ -1,6 +1,6 @@
 package com.mongo.backend.springSecurity.rest;
 
-import com.mongo.backend.springSecurity.model.ResponseToken;
+import com.mongo.backend.springSecurity.model.AuthenticationResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,20 +11,20 @@ import reactor.core.publisher.Mono;
 public class ResourceREST {
 
     @GetMapping("/resource/user")
-    @PreAuthorize("hasRole('USER')")
-    public Mono<ResponseEntity<ResponseToken>> user() {
-        return Mono.just(ResponseEntity.ok(new ResponseToken("Content for user")));
+//    @PreAuthorize("hasRole('USER')")
+    public Mono<ResponseEntity<AuthenticationResponse>> user() {
+        return Mono.just(ResponseEntity.ok(new AuthenticationResponse("Content for user")));
     }
 
     @GetMapping("/resource/admin")
-    @PreAuthorize("hasRole('ADMIN')")
-    public Mono<ResponseEntity<ResponseToken>> admin() {
-        return Mono.just(ResponseEntity.ok(new ResponseToken("Content for admin")));
+//    @PreAuthorize("hasRole('ADMIN')")
+    public Mono<ResponseEntity<AuthenticationResponse>> admin() {
+        return Mono.just(ResponseEntity.ok(new AuthenticationResponse("Content for admin")));
     }
 
     @GetMapping("/resource/user-or-admin")
-    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
-    public Mono<ResponseEntity<ResponseToken>> userOrAdmin() {
-        return Mono.just(ResponseEntity.ok(new ResponseToken("Content for user or admin")));
+//    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+    public Mono<ResponseEntity<AuthenticationResponse>> userOrAdmin() {
+        return Mono.just(ResponseEntity.ok(new AuthenticationResponse("Content for user or admin")));
     }
 }
