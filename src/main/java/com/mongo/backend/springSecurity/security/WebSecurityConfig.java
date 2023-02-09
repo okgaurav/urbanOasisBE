@@ -35,8 +35,8 @@ public class WebSecurityConfig {
                 .securityContextRepository(securityContextRepository)
                 .authorizeExchange()
                 .pathMatchers(HttpMethod.OPTIONS).permitAll()
-//                .pathMatchers("/admin/*").hasRole("ADMIN")
-//                .pathMatchers("/*").hasAnyRole("ADMIN","USER")
+                .pathMatchers("/admin/**").hasRole("ADMIN")
+//                .pathMatchers("/**").hasAnyRole("ADMIN","USER")
                 .pathMatchers("/**").permitAll()
 
                 .anyExchange().authenticated()

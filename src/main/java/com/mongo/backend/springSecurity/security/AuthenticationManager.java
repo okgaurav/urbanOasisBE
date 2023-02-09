@@ -6,7 +6,6 @@ import com.mongo.backend.springSecurity.model.entity.User;
 import com.mongo.backend.springSecurity.repository.UserRepository;
 import io.jsonwebtoken.Claims;
 import lombok.AllArgsConstructor;
-import com.mongo.backend.springSecurity.model.entity.Role;
 
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
