@@ -1,22 +1,16 @@
-package com.mongo.backend.model.entity.fashion;
-
+package com.mongo.backend.model.api.fashion;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.annotation.Transient;
-import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.List;
 
-@Document
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-public class Fashion{
-    @Transient // don't want that field in MongoDb
-    public static final String SEQUENCE_NAME = "fashion_product_sequence";
+public class FashionApiDto {
     @Id
     private String uniqueId;
     private String productName;

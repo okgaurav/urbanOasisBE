@@ -13,16 +13,11 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
-/**
- * This is just an example, you can load the user from the database from the repository.
- * 
- */
 @Service
 
 public class UserService implements ReactiveUserDetailsService {
     private static final Logger logger = (Logger) LoggerFactory.getLogger(UserService.class);
 
-    private Map<String, User> data;
     @Autowired
     private UserRepository userRepository;
 
