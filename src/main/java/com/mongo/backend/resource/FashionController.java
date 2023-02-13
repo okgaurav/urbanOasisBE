@@ -1,6 +1,5 @@
 package com.mongo.backend.resource;
 
-import com.mongo.backend.model.api.StatusApiDto;
 import com.mongo.backend.model.api.fashion.FashionApiDto;
 import com.mongo.backend.service.FashionService;
 import com.mongodb.client.result.UpdateResult;
@@ -28,6 +27,14 @@ public class FashionController {
     public Flux<FashionApiDto> FindAll(){
         return fashionService.findAll();
     }
+    @GetMapping
+    public Flux<FashionApiDto> FindAllAvailabe(){
+        return fashionService.findAllAvailable();
+    }
+    @GetMapping("/search/{keyword}")
+    public Flux<FashionApiDto> SearchFashionProducts(@PathVariable("keyword") String text){
+        return fashionService.searchFashionProducts(text);
+    }
     @PostMapping
     public Mono<FashionApiDto> Create(@RequestBody Mono<FashionApiDto> item) {
         return fashionService.create(item);
@@ -36,17 +43,10 @@ public class FashionController {
     public Mono<FashionApiDto> FindById(@PathVariable("id") String id){
         return fashionService.findById(id);
     }
-    @PatchMapping("/{id}")
-    public Mono<FashionApiDto> UpdateProduct(@PathVariable("id") String id, @RequestBody Mono<FashionApiDto> item){
-        return fashionService.update(id,item);
+    @PatchMapping
+    public Mono<FashionApiDto> UpdateProduct(@RequestBody FashionApiDto fashionApiDto){
+        return fashionService.updateFashionProduct(fashionApiDto);
     }
-    @PutMapping("/delete/{id}")
-    public Mono<UpdateResult> DeleteQuantity(@PathVariable("id") String id){
-        return fashionService.deleteProduct(id);
-    }
-    @PutMapping
-    public Mono<UpdateResult> UpdateProductStatus(@RequestBody StatusApiDto statusApiDto){
-        return fashionService.updateFashionProduct(statusApiDto.getUniqueId(),statusApiDto.getIsVisible());
-    }
+
 
 }

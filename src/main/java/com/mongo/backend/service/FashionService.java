@@ -39,31 +39,14 @@ public class FashionService {
                 .doOnSubscribe(s -> logger.info("Creating {}", item))
                 .doOnNext(q -> logger.info("Created {}", q));
     }
-    public  Mono<FashionApiDto>update(String id,Mono<FashionApiDto> item){
-//        item.map((fashion) ->{
-//            if(fashion!=null && fashion.getUniqueId() !=null){
-//                return fashionRepository.
-//            }
-//         })
-//        Utils.patch(fashionRepository.findById(id).map(FashionMapper::toApi).block(), item.block());
+    public Mono<FashionApiDto> updateFashionProduct(FashionApiDto fashionApiDto){
+        return fashionJavaRepository.updateFashion(fashionApiDto);
+    }
+    public Flux<FashionApiDto> searchFashionProducts(String text){
+        return  fashionJavaRepository.searchFashionProducts(text);
+    }
 
-//    return fashionRepository.findById(id)
-//                .map(FashionMapper::toApi)
-//                .map((fashion) -> {
-//                    Utils.patch(fashion, item.block());
-//                    logger.debug("fashion {}",fashion);
-//                    return fashion;
-//                });
-        return fashionRepository.findById(id)
-                .flatMap(p->item.map(FashionMapper::toEntity)
-                .doOnNext(e -> e.setUniqueId(id)))
-                .flatMap(fashionRepository::save)
-                .map(FashionMapper::toApi);
-    }
-    public Mono<UpdateResult> deleteProduct(String id){
-        return fashionJavaRepository.updateQuantity(id,0);
-    }
-    public Mono<UpdateResult> updateFashionProduct(String id,Boolean status){
-        return fashionJavaRepository.updateFashionProduct(id,status);
+    public Flux<FashionApiDto> findAllAvailable() {
+        return  fashionRepository.findAllByIsVisibleTrue();
     }
 }
