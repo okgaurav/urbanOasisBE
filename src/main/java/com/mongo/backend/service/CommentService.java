@@ -1,5 +1,6 @@
 package com.mongo.backend.service;
 
+import com.mongo.backend.config.State;
 import com.mongo.backend.error.AccountValidationException;
 import com.mongo.backend.mapper.CommentsMapper;
 import com.mongo.backend.mapper.UserAccountMapper;
@@ -24,8 +25,8 @@ public class CommentService {
     private CommentJavaRepository commentJavaRepository;
     @Autowired
     private UserAccountService accountService;
-    public Mono<Comments> setDefaults(Comments comments){
-        return Mono.just(comments.setState(RESERVED).setVersion(0).setUniqueId(ObjectId.get().toHexString()));
+    public Comments setDefaults(Comments comments, State state,Integer version){
+        return comments.setState(state).setVersion(version).setUniqueId(comments.getUniqueId()==null?ObjectId.get().toHexString(): comments.getUniqueId());
     }
     public Mono<CommentsApiDto> create(CommentsApiDto item) {
          return  accountService.findById(item.getAccountId())
@@ -33,7 +34,7 @@ public class CommentService {
                  .doOnSubscribe(a ->log.info("Creating a Comment for accountId=[{}]",item.getAccountId()))
                  .flatMap(a-> {
                      try {
-                         return validateAndPost(a, CommentsMapper.toEntity(item));
+                         return validateAndPost(a,setDefaults(CommentsMapper.toEntity(item),RESERVED,0),true);
                      } catch (AccountValidationException e) {
                          throw new RuntimeException(e);
                      }
@@ -42,12 +43,28 @@ public class CommentService {
                  .map(CommentsMapper::toApi);
     }
 
-    private Mono<Comments> validateAndPost(UserAccount a, Comments item) throws AccountValidationException {
+    private Mono<Comments> validateAndPost(UserAccount a, Comments item,boolean post) throws AccountValidationException {
         log.info("Validating Account is Active or Not. id=[{}]", a.getUniqueId());
         item.setDateTime(Utils.getCurrentDateTime());
         if(a.isActive()!=true)
             throw new AccountValidationException("Account is Not Active");
         log.info("Account Validated id=[{}]", a.getUniqueId());
-        return setDefaults(item).flatMap(comment->commentJavaRepository.add(a, comment));
+        return post ? Mono.just(item).flatMap(comment->commentJavaRepository.add(a, comment)):
+                Mono.just(item).flatMap(comment->commentJavaRepository.update(a, comment));
+    }
+
+    public Mono<CommentsApiDto> update(CommentsApiDto item) {
+        return accountService.findById(item.getAccountId())
+                .map(UserAccountMapper::toEntity)
+                .doOnSubscribe(a ->log.info("Updating a Comment for accountId=[{}]",item.getAccountId()))
+                .flatMap(a-> {
+                    try {
+                        return validateAndPost(a, setDefaults(CommentsMapper.toEntity(item),RESERVED, item.getVersion()+1),false);
+                    } catch (AccountValidationException e) {
+                        throw new RuntimeException(e);
+                    }
+                })
+                .doOnSuccess(s -> log.debug("Created a comment in userId=[{}].", s.getAccountId()))
+                .map(CommentsMapper::toApi);
     }
 }

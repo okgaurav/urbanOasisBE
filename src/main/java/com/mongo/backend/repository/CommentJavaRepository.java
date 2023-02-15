@@ -29,4 +29,16 @@ public class CommentJavaRepository {
                 .thenReturn(comments).doOnSuccess(s-> log.info("Comment Added in Account with Id: {}",s.getAccountId()));
     }
 
+    public Mono<Comments> update(UserAccount userAccount, Comments comment) {
+        var query = new Query().addCriteria(where("uniqueId").is(userAccount.getUniqueId())
+                .and("userComments").elemMatch(where("uniqueId").is(comment.getUniqueId())));
+        var update = new Update()
+                .set("userComments.$.commentText", comment.getCommentText())
+                .set("userComments.$.rating", comment.getRating())
+                .set("userComments.$.version",comment.getVersion())
+                .set("userComments.$.dateTime",comment.getDateTime())
+                .set("userComments.$.images", comment.getImages());
+        return mongoTemplate.updateFirst(query, update, UserAccount.class)
+                .thenReturn(comment).doOnSuccess(s-> log.info("Comment Updated in Account with Id: {}",s.getAccountId()));
+    }
 }
