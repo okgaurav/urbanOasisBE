@@ -3,6 +3,9 @@ package com.mongo.backend.model.utils;
 import com.mongo.backend.model.api.fashion.FashionApiDto;
 import org.springframework.data.mongodb.core.query.Update;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
 public class Utils {
     public static Update patch(FashionApiDto from) {
         Update update = new Update();
@@ -46,5 +49,11 @@ public class Utils {
             update.set("isVisible",from.getIsVisible());
         }
         return update;
+    }
+
+    public static String getCurrentDateTime(){
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+        LocalDateTime now = LocalDateTime.now();
+        return dtf.format(now);
     }
 }
