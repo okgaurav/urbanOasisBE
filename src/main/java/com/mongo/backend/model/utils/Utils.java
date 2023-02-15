@@ -15,8 +15,8 @@ public class Utils {
         if (from.getDescription() != null) {
             update.set("description",from.getDescription());
         }
-        if (from.getPId() != null) {
-            update.set("pid",from.getPId());
+        if (from.getpId() != null) {
+            update.set("pid",from.getpId());
         }
         if (from.getProductName() != null) {
             update.set("productName",from.getProductName());

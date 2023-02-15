@@ -2,8 +2,10 @@ package com.mongo.backend.service;
 
 import com.mongo.backend.mapper.UserAccountMapper;
 import com.mongo.backend.model.api.account.UserAccountApiDto;
+import com.mongo.backend.model.entity.account.UserAccount;
 import com.mongo.backend.repository.UserAccountRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
@@ -14,9 +16,12 @@ import reactor.core.publisher.Mono;
 public class UserAccountService {
     @Autowired
     private UserAccountRepository userAccountRepository;
-
+    public UserAccount setDefaults(UserAccount account){
+        return account.setUniqueId(ObjectId.get().toHexString());
+    }
     public Mono<UserAccountApiDto> create(Mono<UserAccountApiDto> account) {
         return account.map(UserAccountMapper::toEntity)
+                .map(this::setDefaults)
                 .flatMap(userAccountRepository::insert)
                 .map(UserAccountMapper::toApi)
                 .doOnSubscribe(s -> log.info("Creating Account {}",s.toString()))

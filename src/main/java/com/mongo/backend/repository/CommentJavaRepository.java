@@ -24,6 +24,7 @@ public class CommentJavaRepository {
     public Mono<Comments> add(UserAccount userAccount, Comments comments){
         var query = new Query().addCriteria(where("uniqueId").is(userAccount.getUniqueId()));
         var update = new Update().push("userComments",comments);
+        //return mongoTemplate.upsert(query, update, "comments")
         return mongoTemplate.updateFirst(query, update, UserAccount.class)
                 .thenReturn(comments).doOnSuccess(s-> log.info("Comment Added in Account with Id: {}",s.getAccountId()));
     }

@@ -2,9 +2,10 @@ package com.mongo.backend.service;
 
 import com.mongo.backend.mapper.FashionMapper;
 import com.mongo.backend.model.api.fashion.FashionApiDto;
+import com.mongo.backend.model.entity.fashion.Fashion;
 import com.mongo.backend.repository.FashionJavaRepository;
 import com.mongo.backend.repository.FashionRepository;
-import com.mongodb.client.result.UpdateResult;
+import org.bson.types.ObjectId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,9 +33,15 @@ public class FashionService {
                 .doOnSubscribe(s -> logger.debug("Searching User within {}"))
                 .doOnNext(m -> logger.debug("Users within {} retrieved",m.getUniqueId()));
     }
+    public Fashion setDefaults(Fashion fashion){
+        logger.info(fashion.toString());
+        return fashion.setUniqueId(ObjectId.get().toHexString());
+    }
     public Mono<FashionApiDto> create(Mono<FashionApiDto> item) {
         return item.map(FashionMapper::toEntity)
-                .flatMap(fashionRepository::insert)
+                .map(this::setDefaults)
+                .flatMap(fashionRepository::save)
+                .doOnSuccess(a-> logger.info("Successfully Created {}",a.getpId()))
                 .map(FashionMapper::toApi)
                 .doOnSubscribe(s -> logger.info("Creating {}", item))
                 .doOnNext(q -> logger.info("Created {}", q));

@@ -2,7 +2,6 @@ package com.mongo.backend.model.entity.account;
 
 import com.mongo.backend.model.entity.Comments;
 import lombok.AllArgsConstructor;
-import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -13,7 +12,6 @@ import java.util.List;
 @Document
 @NoArgsConstructor
 @AllArgsConstructor
-@Data
 public class UserAccount {
     @Id
     private String uniqueId;
@@ -23,4 +21,68 @@ public class UserAccount {
     private BigInteger phoneNo;
     private boolean isActive;
     private List<Comments> userComments = List.of();
+
+    public String getUniqueId() {
+        return uniqueId;
+    }
+
+    public UserAccount setUniqueId(String uniqueId) {
+        this.uniqueId = uniqueId;
+        return this;
+    }
+
+    public String getUserType() {
+        return userType;
+    }
+
+    public UserAccount setUserType(String userType) {
+        this.userType = userType;
+        return this;
+    }
+
+    public String getProfileImage() {
+        return profileImage;
+    }
+
+    public UserAccount setProfileImage(String profileImage) {
+        this.profileImage = profileImage;
+        return this;
+    }
+
+    public String getAddress() {
+        return Address;
+    }
+
+    public UserAccount setAddress(String address) {
+        Address = address;
+        return this;
+    }
+
+    public BigInteger getPhoneNo() {
+        return phoneNo;
+    }
+
+    public UserAccount setPhoneNo(BigInteger phoneNo) {
+        this.phoneNo = phoneNo;
+        return this;
+    }
+
+    public boolean isActive() {
+        return isActive;
+    }
+
+    public UserAccount setActive(boolean active) {
+        isActive = active;
+        return this;
+    }
+
+    public List<Comments> getUserComments() {
+        return userComments;
+    }
+
+    public UserAccount setUserComments(List<Comments> userComments) {
+        this.userComments = userComments;
+        return this;
+    }
+
 }
