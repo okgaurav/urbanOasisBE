@@ -17,7 +17,7 @@ public class CommentsApiDto {
     private String productUniqueId;
     private String dateTime;
     private String commentText;
-    private String rating;
+    private Integer rating;
     private List<String> images;
     private State state;
     private Integer version;
@@ -73,11 +73,11 @@ public class CommentsApiDto {
         return this;
     }
 
-    public String getRating() {
+    public Integer getRating() {
         return rating;
     }
 
-    public CommentsApiDto setRating(String rating) {
+    public CommentsApiDto setRating(Integer rating) {
         this.rating = rating;
         return this;
     }

@@ -19,7 +19,7 @@ public class Comments {
     private String productUniqueId;
     private String dateTime;
     private String commentText;
-    private String rating;
+    private Integer rating;
     private List<String> images;
     private State state;
     private Integer version;
@@ -78,11 +78,11 @@ public class Comments {
         return this;
     }
 
-    public String getRating() {
+    public Integer getRating() {
         return rating;
     }
 
-    public Comments setRating(String rating) {
+    public Comments setRating(Integer rating) {
         this.rating = rating;
         return this;
     }
