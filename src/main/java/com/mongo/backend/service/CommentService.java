@@ -57,8 +57,8 @@ public class CommentService {
                      }
                  })
                  .doOnSuccess(s -> log.debug("Created a comment in userId=[{}].", s.getAccountId()))
-                 .flatMap(com -> fashionService.addComment(com))
-                 .doOnSuccess(s -> log.debug("Added comment in Fashion Product=[{}].", s.getProductUniqueId()))
+                     .flatMap(com -> fashionService.addComment(com))
+                     .doOnSuccess(s -> log.debug("Added comment in Fashion Product=[{}].", s.getProductUniqueId()))
                  .map(CommentsMapper::toApi);
     }
 
@@ -84,6 +84,8 @@ public class CommentService {
                     }
                 })
                 .doOnSuccess(s -> log.debug("Updated a comment in userId=[{}].", s.getAccountId()))
+                .flatMap(com -> fashionService.updateComment(com))
+                .doOnSuccess(s -> log.debug("Added comment in Fashion Product=[{}].", s.getProductUniqueId()))
                 .map(CommentsMapper::toApi);
     }
     public void CommentAuthorize_Auto() {

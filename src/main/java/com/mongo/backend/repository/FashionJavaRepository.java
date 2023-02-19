@@ -18,7 +18,7 @@ import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 @Repository
 @Slf4j
-public class FashionJavaRepository{
+public class FashionJavaRepository {
     private final ReactiveMongoTemplate mongoTemplate;
 
     @Autowired
@@ -31,19 +31,35 @@ public class FashionJavaRepository{
                 where("productName").exists(true)
                         .orOperator(where("tags").regex(text))
         );
-        return mongoTemplate.find(query,Fashion.class).distinct().map(FashionMapper::toApi);
+        return mongoTemplate.find(query, Fashion.class).distinct().map(FashionMapper::toApi);
     }
-    public Mono<FashionApiDto> updateFashion(FashionApiDto data){
+
+    public Mono<FashionApiDto> updateFashion(FashionApiDto data) {
         var query = new Query().addCriteria(where("uniqueId").is(data.getUniqueId()));
         Update update = Utils.patch(data);
-        log.debug("Update:"+update.toString());
+        log.debug("Update:" + update.toString());
         return mongoTemplate.updateFirst(query, update, Fashion.class).thenReturn(data);
     }
-    public Mono<Comments> add(Fashion fashion, Comments comments){
+
+    public Mono<Comments> add(Fashion fashion, Comments comments) {
         var query = new Query().addCriteria(where("uniqueId").is(fashion.getUniqueId()));
-        var update = new Update().push("comments",comments);
+        var update = new Update().push("comments", comments);
         //return mongoTemplate.upsert(query, update, "comments")
         return mongoTemplate.updateFirst(query, update, Fashion.class)
-                .thenReturn(comments).doOnSuccess(s-> log.info("Comment Added in Account with Id: {}",s.getAccountId()));
+                .thenReturn(comments).doOnSuccess(s -> log.info("Comment Added in Account with Id: {}", s.getAccountId()));
     }
+
+    public Mono<Comments> updateComment(Fashion fashion, Comments comment) {
+        var query = new Query().addCriteria(where("uniqueId").is(fashion.getUniqueId())
+                .and("comments").elemMatch(where("uniqueId").is(comment.getUniqueId())));
+        var update = new Update()
+                .set("comments.$.commentText", comment.getCommentText())
+                .set("comments.$.rating", comment.getRating())
+                .set("comments.$.version", comment.getVersion())
+                .set("comments.$.dateTime", comment.getDateTime())
+                .set("comments.$.images", comment.getImages());
+        return mongoTemplate.updateFirst(query, update, Fashion.class)
+                .thenReturn(comment).doOnSuccess(s -> log.info("Comment Updated in Account with Id: {}", s.getAccountId()));
+    }
+
 }

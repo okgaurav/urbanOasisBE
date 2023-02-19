@@ -63,4 +63,10 @@ public class FashionService {
                 .flatMap(a->fashionJavaRepository.add(a,com))
                 .doOnSuccess(s-> logger.info("Comment Added with Id ={}",s.getUniqueId()));
     }
+
+    public Mono<Comments> updateComment(Comments com) {
+        return com.getCommentText().equals("Cant Update")?Mono.just(new Comments().setCommentText("Cant Update")):fashionRepository.findById(com.getProductUniqueId())
+                .flatMap(a->fashionJavaRepository.updateComment(a,com))
+                .doOnSuccess(s-> logger.info("Comment Added with Id ={}",s.getUniqueId()));
+    }
 }
