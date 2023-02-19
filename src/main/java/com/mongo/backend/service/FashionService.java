@@ -2,6 +2,7 @@ package com.mongo.backend.service;
 
 import com.mongo.backend.mapper.FashionMapper;
 import com.mongo.backend.model.api.fashion.FashionApiDto;
+import com.mongo.backend.model.entity.Comments;
 import com.mongo.backend.model.entity.fashion.Fashion;
 import com.mongo.backend.repository.FashionJavaRepository;
 import com.mongo.backend.repository.FashionRepository;
@@ -55,5 +56,11 @@ public class FashionService {
 
     public Flux<FashionApiDto> findAllAvailable() {
         return  fashionRepository.findAllByIsVisibleTrue();
+    }
+
+    public Mono<Comments> addComment(Comments com){
+        return fashionRepository.findById(com.getProductUniqueId())
+                .flatMap(a->fashionJavaRepository.add(a,com))
+                .doOnSuccess(s-> logger.info("Comment Added with Id ={}",s.getUniqueId()));
     }
 }

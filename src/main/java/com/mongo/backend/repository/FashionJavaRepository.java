@@ -2,20 +2,18 @@ package com.mongo.backend.repository;
 
 import com.mongo.backend.mapper.FashionMapper;
 import com.mongo.backend.model.api.fashion.FashionApiDto;
+import com.mongo.backend.model.entity.Comments;
 import com.mongo.backend.model.entity.fashion.Fashion;
 import com.mongo.backend.model.utils.Utils;
-import com.mongodb.client.result.UpdateResult;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
-import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import static org.springframework.data.mongodb.core.query.Criteria.matchingDocumentStructure;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 @Repository
@@ -40,5 +38,12 @@ public class FashionJavaRepository{
         Update update = Utils.patch(data);
         log.debug("Update:"+update.toString());
         return mongoTemplate.updateFirst(query, update, Fashion.class).thenReturn(data);
+    }
+    public Mono<Comments> add(Fashion fashion, Comments comments){
+        var query = new Query().addCriteria(where("uniqueId").is(fashion.getUniqueId()));
+        var update = new Update().push("comments",comments);
+        //return mongoTemplate.upsert(query, update, "comments")
+        return mongoTemplate.updateFirst(query, update, Fashion.class)
+                .thenReturn(comments).doOnSuccess(s-> log.info("Comment Added in Account with Id: {}",s.getAccountId()));
     }
 }

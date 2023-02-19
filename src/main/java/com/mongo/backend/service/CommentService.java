@@ -30,6 +30,8 @@ public class CommentService {
 
     @Autowired
     private CommentJavaRepository commentJavaRepository;
+    @Autowired
+    private FashionService fashionService;
 
     @Autowired
     private UserAccountRepository userAccountRepository;
@@ -55,6 +57,8 @@ public class CommentService {
                      }
                  })
                  .doOnSuccess(s -> log.debug("Created a comment in userId=[{}].", s.getAccountId()))
+                 .flatMap(com -> fashionService.addComment(com))
+                 .doOnSuccess(s -> log.debug("Added comment in Fashion Product=[{}].", s.getProductUniqueId()))
                  .map(CommentsMapper::toApi);
     }
 
