@@ -1,5 +1,6 @@
 package com.mongo.backend.model.api.fashion;
 
+import com.mongo.backend.model.entity.Comments;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
@@ -22,6 +23,7 @@ public class FashionApiDto {
     private List<Integer>rating = List.of();
     private String brand;
     private Integer units;
+    private List<Comments>comments = List.of();
     private Boolean isVisible;
     public String getUniqueId() {
         return uniqueId;
@@ -108,8 +110,9 @@ public class FashionApiDto {
         return rating;
     }
 
-    public void setRating(List<Integer> rating) {
+    public FashionApiDto setRating(List<Integer> rating) {
         this.rating = rating;
+        return this;
     }
 
     public String getBrand() {
@@ -136,6 +139,15 @@ public class FashionApiDto {
 
     public FashionApiDto setIsVisible(Boolean visible) {
         isVisible = visible;
+        return this;
+    }
+
+    public List<Comments> getComments() {
+        return comments;
+    }
+
+    public FashionApiDto setComments(List<Comments> comments) {
+        this.comments = comments;
         return this;
     }
 }

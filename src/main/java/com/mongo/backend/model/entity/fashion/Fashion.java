@@ -1,6 +1,7 @@
 package com.mongo.backend.model.entity.fashion;
 
 
+import com.mongo.backend.model.entity.Comments;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
@@ -26,6 +27,7 @@ public class Fashion{
     private Double discount;
     private String description;
     private List<Integer>rating = List.of();
+    private List<Comments>comments = List.of();
     private String brand;
     private Integer units;
     private Boolean isVisible;
@@ -144,6 +146,14 @@ public class Fashion{
 
     public Fashion setIsVisible(Boolean visible) {
         isVisible = visible;
+        return this;
+    }
+    public List<Comments> getComments() {
+        return comments;
+    }
+
+    public Fashion setComments(List<Comments> comments) {
+        this.comments = comments;
         return this;
     }
 }
