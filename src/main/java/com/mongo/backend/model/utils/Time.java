@@ -3,7 +3,6 @@ package com.mongo.backend.model.utils;
 
 import lombok.extern.slf4j.Slf4j;
 
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -107,11 +106,5 @@ public class Time {
     }
     public static long fromDays(int days){
         return days*fromHrs(24);
-    }
-
-    public static void main(String[] args) throws ParseException {
-        getDateDifference("15/02/2023","17/02/2023");
-        getTimeDifference("23:41:24","23:43:24");
-        System.out.println(getCommonDifference(getCurrentDateTime(),getDateTimeDelay(fromHrs(24)),DATE_TIME_FORMAT,TimeUnit.SECONDS));
     }
 }

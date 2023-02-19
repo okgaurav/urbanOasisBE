@@ -8,8 +8,13 @@ import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Repository;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import static org.springframework.data.mongodb.core.aggregation.Aggregation.match;
+import static org.springframework.data.mongodb.core.aggregation.Aggregation.newAggregation;
+import static org.springframework.data.mongodb.core.aggregation.Aggregation.replaceRoot;
+import static org.springframework.data.mongodb.core.aggregation.Aggregation.unwind;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 @Repository
@@ -40,5 +45,20 @@ public class CommentJavaRepository {
                 .set("userComments.$.images", comment.getImages());
         return mongoTemplate.updateFirst(query, update, UserAccount.class)
                 .thenReturn(comment).doOnSuccess(s-> log.info("Comment Updated in Account with Id: {}",s.getAccountId()));
+    }
+    public Flux<Comments> findAll(String accountId) {
+//        var filter = where("activeReservations.reservationStatus").is(RESERVED);
+        var aggregation = newAggregation(
+                match(where("uniqueId").is(accountId)),
+                unwind("userComments "),
+                replaceRoot("userComments "));
+        return mongoTemplate.aggregate(aggregation, UserAccount.class, Comments.class);
+    }
+
+    public Mono<Comments> getComment(String accountId, String commentId) {
+        var query = new Query().addCriteria(where("uniqueId").is(accountId)
+                .and("userComments").elemMatch(where("uniqueId").is(commentId)));
+        return mongoTemplate.findOne(query,Comments.class)
+                .doOnSuccess(s-> log.info("Found Comment with Id ={}",commentId));
     }
 }
