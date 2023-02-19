@@ -34,11 +34,8 @@ public class Utils {
         if (from.getDiscount() != null) {
             update.set("discount", from.getDiscount());
         }
-        if (from.getRatingCount() != null) {
-            update.set("ratingCount", from.getRatingCount());
-        }
-        if (from.getRating() != null) {
-            update.set("rating", from.getRating());
+        if (from.getRating()!= null) {
+            update.set("ratingCount", from.getRating());
         }
         if (from.getCategory() != null) {
             update.set("category", from.getCategory());

@@ -25,8 +25,7 @@ public class Fashion{
     private Double discountedPrice;
     private Double discount;
     private String description;
-    private Double ratingCount;
-    private Double rating;
+    private List<Integer>rating = List.of();
     private String brand;
     private Integer units;
     private Boolean isVisible;
@@ -113,22 +112,12 @@ public class Fashion{
         return this;
     }
 
-    public Double getRatingCount() {
-        return ratingCount;
-    }
-
-    public Fashion setRatingCount(Double ratingCount) {
-        this.ratingCount = ratingCount;
-        return this;
-    }
-
-    public Double getRating() {
+    public List<Integer> getRating() {
         return rating;
     }
 
-    public Fashion setRating(Double rating) {
+    public void setRating(List<Integer> rating) {
         this.rating = rating;
-        return this;
     }
 
     public String getBrand() {
