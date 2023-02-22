@@ -11,7 +11,6 @@ import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import static org.springframework.data.mongodb.core.aggregation.Aggregation.limit;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.match;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.newAggregation;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.replaceRoot;
@@ -61,16 +60,12 @@ public class CommentJavaRepository {
 //        var filter = where("activeReservations.reservationStatus").is(RESERVED);
         var aggregation = newAggregation(
                 match(where("uniqueId").is(accountId)),
-                unwind("userComments "),
-                replaceRoot("userComments "));
+                unwind("userComments"),
+                replaceRoot("userComments"));
         return mongoTemplate.aggregate(aggregation, UserAccount.class, Comments.class);
     }
 
     public Mono<Comments> getComment(String accountId, String commentId) {
-        var aggregation = newAggregation(
-                match(where("uniqueId").is(accountId)),
-                unwind("userComments "),
-                replaceRoot("userComments "),limit(1));
-        return mongoTemplate.aggregate(aggregation, UserAccount.class, Comments.class).next();
+        return findAll(accountId).filter(a-> a.getUniqueId().equals(commentId)).next();
     }
 }
