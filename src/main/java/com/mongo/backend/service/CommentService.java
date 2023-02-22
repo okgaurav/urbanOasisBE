@@ -1,6 +1,5 @@
 package com.mongo.backend.service;
 
-import com.mongo.backend.config.State;
 import com.mongo.backend.mapper.CommentsMapper;
 import com.mongo.backend.mapper.UserAccountMapper;
 import com.mongo.backend.model.api.CommentsApiDto;
@@ -18,7 +17,9 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import static com.mongo.backend.config.State.PUBLISHED;
+import static com.mongo.backend.config.State.REJECTED;
 import static com.mongo.backend.config.State.RESERVED;
+import static com.mongo.backend.model.utils.Filter.filterText;
 
 @Service
 @Slf4j
@@ -33,6 +34,7 @@ public class CommentService {
     private UserAccountRepository userAccountRepository;
     @Autowired
     private UserAccountService accountService;
+//    --------------------------------------------------------------OldCode of Create----------------------------------
 //    public Mono<Comments> updateDefault(Comments comments){
 //        try{
 //            return getOriginalComment(comments);
@@ -41,19 +43,19 @@ public class CommentService {
 //        }
 //        return Mono.just(new Comments().setCommentText("Cant Update any Published Comment"));
 //    }
-    private Mono<Comments> getOriginalComment(Comments comments){
-        return commentJavaRepository.getComment(comments.getAccountId(),comments.getUniqueId())
-                .flatMap(comments1 -> this.StateCheck(comments1, comments));
-    }
-    public Mono<Comments> StateCheck(Comments comments,Comments newComment){
-        if(comments.getState()== PUBLISHED)
-            throw new RuntimeException("Comment Already Published");
-        newComment.setVersion(comments.getVersion()+1);
-        return Mono.just(newComment);
-    }
-    public Comments setDefaults(Comments comments, State state,Integer version){
-        return comments.setState(state).setVersion(version).setUniqueId(ObjectId.get().toHexString());
-    }
+//    private Mono<Comments> getOriginalComment(Comments comments){
+//        return commentJavaRepository.getComment(comments.getAccountId(),comments.getUniqueId())
+//                .flatMap(comments1 -> this.StateCheck(comments1, comments));
+//    }
+//    public Mono<Comments> StateCheck(Comments comments,Comments newComment){
+//        if(comments.getState()== PUBLISHED)
+//            throw new RuntimeException("Comment Already Published");
+//        newComment.setVersion(comments.getVersion()+1);
+//        return Mono.just(newComment);
+//    }
+//    public Comments setDefaults(Comments comments, State state,Integer version){
+//        return comments.setState(state).setVersion(version).setUniqueId(ObjectId.get().toHexString());
+//    }
 //    public Mono<CommentsApiDto> create_(CommentsApiDto item) {
 //         return  accountService.findById(item.getAccountId())
 //                 .map(UserAccountMapper::toEntity)
@@ -96,12 +98,6 @@ public class CommentService {
                 .map(CommentsMapper::toApi);
     }
 
-    public Mono<CommentsApiDto> updateState(CommentsApiDto commentsApiDto) {
-        return commentJavaRepository.updateStatus(CommentsMapper.toEntity(commentsApiDto))
-                .flatMap(comments->fashionService.publishFashionComment(CommentsMapper.toEntity(commentsApiDto)))
-                .map(CommentsMapper::toApi);
-    }
-
 //    ---------------------------------------------Update New Code ----------------------------------------------------
 
     private Mono<UserAccountApiDto> accountValidation(CommentsApiDto comment) {
@@ -133,8 +129,8 @@ public class CommentService {
                 .switchIfEmpty(onCommentNotFound());
     }
     public Mono<CommentsApiDto> StateCommentCheck(CommentsApiDto comments,CommentsApiDto newComment){
-        if(comments.getState().equals(PUBLISHED))
-            throw new RuntimeException("Comment Already Published");
+        if(comments.getState().equals(PUBLISHED) || comments.getState().equals(REJECTED))
+            throw new RuntimeException("Comment Already { "+comments.getState()+" }");
         newComment.setVersion(comments.getVersion()+1);
         newComment.setDateTime(Utils.getCurrentDateTime());
         return Mono.just(newComment);
@@ -174,4 +170,31 @@ public class CommentService {
                 .flatMap(com -> fashionService.addComment(CommentsMapper.toEntity(com)))
                 .map(CommentsMapper::toApi);
     }
+//    ------------------------------------------------Update State------------------------------------------------
+    private Mono<CommentsApiDto> validateProfanity(CommentsApiDto comments){
+        if(filterText(comments.getCommentText()) == false)
+            comments.setState(PUBLISHED);
+        else {
+            comments.setState(REJECTED);
+            log.error("Profanity found in Comment, Moving to REJECTED");
+        }
+        return Mono.just(comments);
+    }
+    public Mono<CommentsApiDto> updateStateImpl(CommentsApiDto commentsApiDto) {
+        return commentJavaRepository.updateStatus(CommentsMapper.toEntity(commentsApiDto))
+                .flatMap(comments->fashionService.publishFashionComment(CommentsMapper.toEntity(commentsApiDto)))
+                .map(CommentsMapper::toApi);
+    }
+    public Mono<CommentsApiDto> updateState(CommentsApiDto commentsApiDto){
+        return accountValidation(commentsApiDto)
+                .flatMap(account -> productValidation(commentsApiDto))
+                .flatMap(fashion -> getSavedComment(commentsApiDto))
+                .flatMap(comm -> StateCommentCheck(comm,commentsApiDto))
+                .flatMap(fashion -> getSavedComment(commentsApiDto))
+                .flatMap(this::validateProfanity)
+                .flatMap(this::updateStateImpl);
+    }
+
+
+
 }

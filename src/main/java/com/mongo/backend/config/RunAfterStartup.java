@@ -4,6 +4,8 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 
+import static com.mongo.backend.model.utils.Filter.loadConfigs;
+
 @Component
 public class RunAfterStartup{
     @PostConstruct

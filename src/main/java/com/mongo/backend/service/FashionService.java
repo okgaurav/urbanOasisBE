@@ -77,11 +77,15 @@ public class FashionService {
     }
     public Mono<Comments> publishComment(Fashion fashion, Comments com){
         return commentJavaRepository.getComment(com.getAccountId(), com.getUniqueId())
-                .flatMap(aa -> fashionJavaRepository.updateRating(fashion ,aa))
+                .flatMap(aa -> ratingCheck(fashion,aa))
                 .flatMap(fas -> publishCommentStatus(com));
     }
+    private Mono<Fashion> ratingCheck(Fashion fashion, Comments com){
+        if(com.getState().equals(State.REJECTED))
+            return Mono.just(fashion);
+        return fashionJavaRepository.updateRating(fashion,com);
+    }
     private Mono<Comments> publishCommentStatus(Comments com){
-        com.setState(State.PUBLISHED);
         return fashionJavaRepository.updateStatus(com);
     }
 
