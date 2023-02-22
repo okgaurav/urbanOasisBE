@@ -1,14 +1,12 @@
 package com.mongo.backend.service;
 
 import com.mongo.backend.config.State;
-import com.mongo.backend.error.AccountValidationException;
 import com.mongo.backend.mapper.CommentsMapper;
 import com.mongo.backend.mapper.UserAccountMapper;
 import com.mongo.backend.model.api.CommentsApiDto;
 import com.mongo.backend.model.api.account.UserAccountApiDto;
 import com.mongo.backend.model.api.fashion.FashionApiDto;
 import com.mongo.backend.model.entity.Comments;
-import com.mongo.backend.model.entity.account.UserAccount;
 import com.mongo.backend.model.utils.Utils;
 import com.mongo.backend.repository.CommentJavaRepository;
 import com.mongo.backend.repository.UserAccountRepository;
@@ -35,14 +33,14 @@ public class CommentService {
     private UserAccountRepository userAccountRepository;
     @Autowired
     private UserAccountService accountService;
-    public Mono<Comments> updateDefault(Comments comments){
-        try{
-            return getOriginalComment(comments);
-        }catch (Exception e){
-            log.error("Cant Update any Published Comment");
-        }
-        return Mono.just(new Comments().setCommentText("Cant Update any Published Comment"));
-    }
+//    public Mono<Comments> updateDefault(Comments comments){
+//        try{
+//            return getOriginalComment(comments);
+//        }catch (Exception e){
+//            log.error("Cant Update any Published Comment");
+//        }
+//        return Mono.just(new Comments().setCommentText("Cant Update any Published Comment"));
+//    }
     private Mono<Comments> getOriginalComment(Comments comments){
         return commentJavaRepository.getComment(comments.getAccountId(),comments.getUniqueId())
                 .flatMap(comments1 -> this.StateCheck(comments1, comments));
@@ -56,35 +54,35 @@ public class CommentService {
     public Comments setDefaults(Comments comments, State state,Integer version){
         return comments.setState(state).setVersion(version).setUniqueId(ObjectId.get().toHexString());
     }
-    public Mono<CommentsApiDto> create(CommentsApiDto item) {
-         return  accountService.findById(item.getAccountId())
-                 .map(UserAccountMapper::toEntity)
-                 .doOnSubscribe(a ->log.info("Creating a Comment for accountId=[{}]",item.getAccountId()))
-                 .flatMap(a-> {
-                     try {
-                         return validateAndPost(a,setDefaults(CommentsMapper.toEntity(item),RESERVED,0),true);
-                     } catch (AccountValidationException e) {
-                         return Mono.error(new RuntimeException(e));
-                     }
-                 })
-                 .doOnSuccess(s -> log.debug("Created a comment in userId=[{}].", s.getAccountId()))
-                     .flatMap(com -> fashionService.addComment(com))
-                     .doOnSuccess(s -> log.debug("Added comment in Fashion Product=[{}].", s.getProductUniqueId()))
-                 .map(CommentsMapper::toApi);
-    }
+//    public Mono<CommentsApiDto> create_(CommentsApiDto item) {
+//         return  accountService.findById(item.getAccountId())
+//                 .map(UserAccountMapper::toEntity)
+//                 .doOnSubscribe(a ->log.info("Creating a Comment for accountId=[{}]",item.getAccountId()))
+//                 .flatMap(a-> {
+//                     try {
+//                         return validateAndPost(a,setDefaults(CommentsMapper.toEntity(item),RESERVED,0),true);
+//                     } catch (AccountValidationException e) {
+//                         return Mono.error(new RuntimeException(e));
+//                     }
+//                 })
+//                 .doOnSuccess(s -> log.debug("Created a comment in userId=[{}].", s.getAccountId()))
+//                     .flatMap(com -> fashionService.addComment(com))
+//                     .doOnSuccess(s -> log.debug("Added comment in Fashion Product=[{}].", s.getProductUniqueId()))
+//                 .map(CommentsMapper::toApi);
+//    }
 
-    private Mono<Comments> validateAndPost(UserAccount a, Comments item,boolean post) throws AccountValidationException {
-        log.info("Validating Account is Active or Not. id=[{}] ans State ={}", a.getUniqueId(),item.getState());
-        item.setDateTime(Utils.getCurrentDateTime());
-        if(a.isActive()!=true)
-            throw new AccountValidationException("Account is Not Active");
-        log.info("Account Validated id=[{}]", a.getUniqueId());
-        return post ? Mono.just(item).flatMap(comment->commentJavaRepository.add(a, comment)):
-                updateFashionComment(item).map(CommentsMapper::toEntity);
-    }
-    private Mono<CommentsApiDto> updateFashionComment(Comments comment){
-        return commentJavaRepository.update(comment).flatMap(com -> fashionService.updateComment(com)).map(CommentsMapper::toApi);
-    }
+//    private Mono<Comments> validateAndPost(UserAccount a, Comments item,boolean post) throws AccountValidationException {
+//        log.info("Validating Account is Active or Not. id=[{}] ans State ={}", a.getUniqueId(),item.getState());
+//        item.setDateTime(Utils.getCurrentDateTime());
+//        if(a.isActive()!=true)
+//            throw new AccountValidationException("Account is Not Active");
+//        log.info("Account Validated id=[{}]", a.getUniqueId());
+//        return post ? Mono.just(item).flatMap(comment->commentJavaRepository.add(a, comment)):
+//                updateFashionComment(item).map(CommentsMapper::toEntity);
+//    }
+//    private Mono<CommentsApiDto> updateFashionComment(Comments comment){
+//        return commentJavaRepository.update(comment).flatMap(com -> fashionService.updateComment(com)).map(CommentsMapper::toApi);
+//    }
 
     public Flux<CommentsApiDto> findAll(String item) {
         return commentJavaRepository.findAll(item).map(CommentsMapper::toApi);
@@ -155,6 +153,25 @@ public class CommentService {
                 .flatMap(comm -> StateCommentCheck(comm,commentsApiDto))
                 .flatMap(newComm -> updateFashionComment_(CommentsMapper.toEntity(newComm)));
     }
-
-
+//    ---------------------------------------------Create New Code ----------------------------------------------------
+    private Mono<CommentsApiDto> setDefault(CommentsApiDto commentsApiDto){
+        commentsApiDto.setVersion(0);
+        commentsApiDto.setDateTime(Utils.getCurrentDateTime());
+        commentsApiDto.setState(RESERVED);
+        commentsApiDto.setUniqueId(ObjectId.get().toHexString());
+        return Mono.just(commentsApiDto);
+    }
+    private Mono<CommentsApiDto> sendCreateRequest(CommentsApiDto commentsApiDto){
+        return accountValidation(commentsApiDto)
+                .flatMap(accountApiDto -> commentJavaRepository.add(UserAccountMapper.toEntity(accountApiDto),CommentsMapper.toEntity(commentsApiDto)))
+                .map(CommentsMapper::toApi);
+    }
+    public Mono<CommentsApiDto> create(CommentsApiDto commentsApiDto) {
+        return accountValidation(commentsApiDto)
+                .flatMap(account -> productValidation(commentsApiDto))
+                .flatMap(comm -> setDefault(commentsApiDto))
+                .flatMap(this::sendCreateRequest)
+                .flatMap(com -> fashionService.addComment(CommentsMapper.toEntity(com)))
+                .map(CommentsMapper::toApi);
+    }
 }
