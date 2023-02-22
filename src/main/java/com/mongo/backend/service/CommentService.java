@@ -109,7 +109,9 @@ public class CommentService {
                 .map(CommentsMapper::toApi);
     }
 
-    public Mono<CommentsApiDto> updateState(String item) {
-        return Mono.just(new CommentsApiDto());
+    public Mono<CommentsApiDto> updateState(CommentsApiDto commentsApiDto) {
+        return commentJavaRepository.updateStatus(CommentsMapper.toEntity(commentsApiDto))
+                .flatMap(comments->fashionService.publishFashionComment(CommentsMapper.toEntity(commentsApiDto)))
+                .map(CommentsMapper::toApi);
     }
 }

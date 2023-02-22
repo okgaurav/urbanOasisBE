@@ -55,7 +55,7 @@ public class CommentJavaRepository {
         var update = new Update()
                 .set("userComments.$.state", comment.getState());
         return mongoTemplate.updateFirst(query, update, UserAccount.class)
-                .thenReturn(comment).doOnSuccess(s-> log.info("Comment's State Updated in Account with Id: {}",s.getAccountId()));
+                .thenReturn(comment).doOnSuccess(s-> log.info("Comment's State Updated in Account with state ={}",s.getState()));
     }
     public Flux<Comments> findAll(String accountId) {
 //        var filter = where("activeReservations.reservationStatus").is(RESERVED);

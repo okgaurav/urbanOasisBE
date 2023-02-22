@@ -71,15 +71,18 @@ public class FashionService {
                 .flatMap(a -> fashionJavaRepository.add(a, com))
                 .doOnSuccess(s -> logger.info("Comment Added with Id ={}", s.getUniqueId()));
     }
-    public Mono<Comments> publishComment(Comments com){
-        return fashionRepository.findById(com.getProductUniqueId())
-                .flatMap(aa -> fashionJavaRepository.updateRating(aa,com))
-                .flatMap(fashion -> commentJavaRepository.getComment(com.getAccountId(), com.getUniqueId()))
-                .flatMap(this::publishCommentStatus);
+    public Mono<Comments> publishFashionComment(Comments comments){
+        return fashionRepository.findById(comments.getProductUniqueId())
+                .flatMap(fashion -> publishComment(fashion,comments));
+    }
+    public Mono<Comments> publishComment(Fashion fashion, Comments com){
+        return commentJavaRepository.getComment(com.getAccountId(), com.getUniqueId())
+                .flatMap(aa -> fashionJavaRepository.updateRating(fashion ,aa))
+                .flatMap(fas -> publishCommentStatus(com));
     }
     private Mono<Comments> publishCommentStatus(Comments com){
         com.setState(State.PUBLISHED);
-        return commentJavaRepository.updateStatus(com);
+        return fashionJavaRepository.updateStatus(com);
     }
 
     public Mono<Comments> updateComment(Comments com) {

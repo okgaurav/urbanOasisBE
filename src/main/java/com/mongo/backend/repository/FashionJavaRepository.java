@@ -40,6 +40,14 @@ public class FashionJavaRepository {
         log.debug("Update:" + update.toString());
         return mongoTemplate.updateFirst(query, update, Fashion.class).thenReturn(data);
     }
+    public Mono<Comments>updateStatus(Comments comment){
+        var query = new Query().addCriteria(where("uniqueId").is(comment.getProductUniqueId())
+                .and("comments").elemMatch(where("uniqueId").is(comment.getUniqueId())));
+        var update = new Update()
+                .set("comments.$.state", comment.getState());
+        return mongoTemplate.updateFirst(query, update, Fashion.class)
+                .thenReturn(comment).doOnSuccess(s-> log.info("Fashion Comment's State Updated in Account with state ={}",s.getState()));
+    }
     public Mono<Fashion> updateRating(Fashion data,Comments comments){
         var query = new Query().addCriteria(where("uniqueId").is(data.getUniqueId()));
         var ratingIndex = comments.getRating()-1;
