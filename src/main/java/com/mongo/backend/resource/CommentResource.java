@@ -37,4 +37,8 @@ public class CommentResource {
     public Mono<CommentsApiDto> GetComment(@RequestBody CommentsApiDto item) {
         return commentService.getComment(item.getAccountId(),item.getUniqueId());
     }
+    @GetMapping("/publish/{id}")
+    public Mono<CommentsApiDto> publishComment(@PathVariable("id") String id){
+        return commentService.updateState(id);
+    }
 }

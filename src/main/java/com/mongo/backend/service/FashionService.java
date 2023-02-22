@@ -1,5 +1,6 @@
 package com.mongo.backend.service;
 
+import com.mongo.backend.config.State;
 import com.mongo.backend.mapper.FashionMapper;
 import com.mongo.backend.model.api.fashion.FashionApiDto;
 import com.mongo.backend.model.entity.Comments;
@@ -67,24 +68,25 @@ public class FashionService {
 
     public Mono<Comments> addComment(Comments com) {
         return fashionRepository.findById(com.getProductUniqueId())
-                .flatMap(aa -> fashionJavaRepository.updateRating(aa,com))
                 .flatMap(a -> fashionJavaRepository.add(a, com))
                 .doOnSuccess(s -> logger.info("Comment Added with Id ={}", s.getUniqueId()));
     }
-    public Mono<Comments> updateCommentFields(Comments newCom,Comments oldCom){
-        logger.info("Comment Updated Retrived {}",newCom.getUniqueId());
-//        return Mono.just(Utils.patchComment(newCom,oldCom));
-        return Mono.just(newCom);
+    public Mono<Comments> publishComment(Comments com){
+        return fashionRepository.findById(com.getProductUniqueId())
+                .flatMap(aa -> fashionJavaRepository.updateRating(aa,com))
+                .flatMap(fashion -> commentJavaRepository.getComment(com.getAccountId(), com.getUniqueId()))
+                .flatMap(this::publishCommentStatus);
+    }
+    private Mono<Comments> publishCommentStatus(Comments com){
+        com.setState(State.PUBLISHED);
+        return commentJavaRepository.updateStatus(com);
     }
 
     public Mono<Comments> updateComment(Comments com) {
         return com.getCommentText().equals("Cant Update") ?
                 Mono.just(new Comments().setCommentText("Cant Update")) :
                 fashionRepository.findById(com.getProductUniqueId())
-                        .flatMap(fashion -> fashionJavaRepository.dropRating(fashion, com))
-                        .flatMap(fashion -> commentJavaRepository.getComment(com.getAccountId(), com.getUniqueId()));
-//                        .flatMap(comments -> updateCommentFields(com, comments))
-//                        .doOnNext(a->logger.info("updateCommentFields Done!"))
-//                        .flatMap(this::addComment);
+                        .flatMap(fashion -> fashionJavaRepository.updateComment(fashion, com));
+
     }
 }

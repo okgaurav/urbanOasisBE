@@ -11,6 +11,7 @@ import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import static org.springframework.data.mongodb.core.aggregation.Aggregation.limit;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.match;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.newAggregation;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.replaceRoot;
@@ -27,6 +28,7 @@ public class CommentJavaRepository {
     }
 
     public Mono<Comments> add(UserAccount userAccount, Comments comments){
+        // Adding Comment in UserAccount
         var query = new Query().addCriteria(where("uniqueId").is(userAccount.getUniqueId()));
         var update = new Update().push("userComments",comments);
         //return mongoTemplate.upsert(query, update, "comments")
@@ -35,6 +37,7 @@ public class CommentJavaRepository {
     }
 
     public Mono<Comments> update(Comments comment) {
+        //This One is Updating Comment in UserAccount
         var query = new Query().addCriteria(where("uniqueId").is(comment.getAccountId())
                 .and("userComments").elemMatch(where("uniqueId").is(comment.getUniqueId())));
         var update = new Update()
@@ -46,6 +49,14 @@ public class CommentJavaRepository {
         return mongoTemplate.updateFirst(query, update, UserAccount.class)
                 .thenReturn(comment).doOnSuccess(s-> log.info("Comment Updated in Account with Id: {}",s.getAccountId()));
     }
+    public Mono<Comments>updateStatus(Comments comment){
+        var query = new Query().addCriteria(where("uniqueId").is(comment.getAccountId())
+                .and("userComments").elemMatch(where("uniqueId").is(comment.getUniqueId())));
+        var update = new Update()
+                .set("userComments.$.state", comment.getState());
+        return mongoTemplate.updateFirst(query, update, UserAccount.class)
+                .thenReturn(comment).doOnSuccess(s-> log.info("Comment's State Updated in Account with Id: {}",s.getAccountId()));
+    }
     public Flux<Comments> findAll(String accountId) {
 //        var filter = where("activeReservations.reservationStatus").is(RESERVED);
         var aggregation = newAggregation(
@@ -56,10 +67,10 @@ public class CommentJavaRepository {
     }
 
     public Mono<Comments> getComment(String accountId, String commentId) {
-        var query = new Query().addCriteria(where("uniqueId").is(accountId)
-                .and("userComments").elemMatch(where("uniqueId").is(commentId)));
-        log.info("Comment Retrived {}",accountId);
-        return mongoTemplate.findOne(query,Comments.class)
-                .doOnSuccess(s-> log.info("Found Comment with Id ={}",commentId));
+        var aggregation = newAggregation(
+                match(where("uniqueId").is(accountId)),
+                unwind("userComments "),
+                replaceRoot("userComments "),limit(1));
+        return mongoTemplate.aggregate(aggregation, UserAccount.class, Comments.class).next();
     }
 }

@@ -69,10 +69,10 @@ public class CommentService {
             throw new AccountValidationException("Account is Not Active");
         log.info("Account Validated id=[{}]", a.getUniqueId());
         return post ? Mono.just(item).flatMap(comment->commentJavaRepository.add(a, comment)):
-                Mono.just(item).flatMap(this::updateRatingFashion);
+                updateFashionComment(item).map(CommentsMapper::toEntity);
     }
-    private Mono<Comments> updateRatingFashion(Comments comment){
-        return commentJavaRepository.update(comment);
+    private Mono<CommentsApiDto> updateFashionComment(Comments comment){
+        return commentJavaRepository.update(comment).flatMap(com -> fashionService.updateComment(com)).map(CommentsMapper::toApi);
     }
     public Mono<CommentsApiDto> update(CommentsApiDto item) {
         return accountService.findById(item.getAccountId())
@@ -86,8 +86,6 @@ public class CommentService {
                     }
                 })
                 .doOnSuccess(s -> log.debug("Updated a comment in userId=[{}].", s.getAccountId()))
-                .flatMap(com -> fashionService.updateComment(com))
-                .doOnSuccess(s -> log.debug("Added comment in Fashion Product=[{}].", s.getProductUniqueId()))
                 .map(CommentsMapper::toApi);
     }
     public void CommentAuthorize_Auto() {
@@ -109,5 +107,9 @@ public class CommentService {
                 .doOnSubscribe(s-> log.info("Finding Comment with Id ={}",commentId))
                 .doOnSuccess(s-> log.info("Found Comment with Id ={}",commentId))
                 .map(CommentsMapper::toApi);
+    }
+
+    public Mono<CommentsApiDto> updateState(String item) {
+        return Mono.just(new CommentsApiDto());
     }
 }
