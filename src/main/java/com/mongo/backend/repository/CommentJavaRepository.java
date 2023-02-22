@@ -34,8 +34,8 @@ public class CommentJavaRepository {
                 .thenReturn(comments).doOnSuccess(s-> log.info("Comment Added in Account with Id: {}",s.getAccountId()));
     }
 
-    public Mono<Comments> update(UserAccount userAccount, Comments comment) {
-        var query = new Query().addCriteria(where("uniqueId").is(userAccount.getUniqueId())
+    public Mono<Comments> update(Comments comment) {
+        var query = new Query().addCriteria(where("uniqueId").is(comment.getAccountId())
                 .and("userComments").elemMatch(where("uniqueId").is(comment.getUniqueId())));
         var update = new Update()
                 .set("userComments.$.commentText", comment.getCommentText())
@@ -58,6 +58,7 @@ public class CommentJavaRepository {
     public Mono<Comments> getComment(String accountId, String commentId) {
         var query = new Query().addCriteria(where("uniqueId").is(accountId)
                 .and("userComments").elemMatch(where("uniqueId").is(commentId)));
+        log.info("Comment Retrived {}",accountId);
         return mongoTemplate.findOne(query,Comments.class)
                 .doOnSuccess(s-> log.info("Found Comment with Id ={}",commentId));
     }

@@ -1,9 +1,9 @@
 package com.mongo.backend.error;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
+import java.util.stream.IntStream;
 
 public class StringSearch {
 
@@ -38,9 +38,16 @@ public class StringSearch {
     }
 
     public static void main(String[] args) {
-        String text = "abc";
-        System.out.println("Permutations: " + permutations(text));
-        result.clear();
-        System.out.println("Combinations: " + combinations(text));
+//        String text = "abc";
+//        System.out.println("Permutations: " + permutations(text));
+//        result.clear();
+//        System.out.println("Combinations: " + combinations(text));
+        int[] results = IntStream.of(10,20,30,40,50,60,70)
+                .map(value -> value*20)
+                .distinct()
+                .sorted()
+                .sequential()
+                .toArray();
+        System.out.println(Arrays.toString(results));
     }
 }

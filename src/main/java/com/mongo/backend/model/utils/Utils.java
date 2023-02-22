@@ -1,7 +1,7 @@
 package com.mongo.backend.model.utils;
 
-import com.mongo.backend.model.api.CommentsApiDto;
 import com.mongo.backend.model.api.fashion.FashionApiDto;
+import com.mongo.backend.model.entity.Comments;
 import org.springframework.data.mongodb.core.query.Update;
 
 import java.time.LocalDateTime;
@@ -55,19 +55,18 @@ public class Utils {
         return dtf.format(now);
     }
 
-    public static CommentsApiDto patchComment(CommentsApiDto newComment, CommentsApiDto reservedComment) {
-        if(newComment.getRating()==null){
-            newComment.setRating(reservedComment.getRating());
+    public static Comments patchComment(Comments newComment, Comments reservedComment) {
+        if(newComment.getRating()==null || newComment.getRating()!= reservedComment.getRating()){
+            reservedComment.setRating(newComment.getRating());
         }
-        if(newComment.getCommentText()==null){
-            newComment.setCommentText(reservedComment.getCommentText());
+        if(newComment.getCommentText()==null || !newComment.getCommentText().equals(reservedComment.getCommentText())){
+            reservedComment.setCommentText(newComment.getCommentText());
         }
-        if(newComment.getVersion()==null){
-            newComment.setVersion(reservedComment.getVersion());
+        if(newComment.getImages()==null || !newComment.getImages().equals(reservedComment.getImages())){
+            reservedComment.setImages(newComment.getImages()==null? reservedComment.getImages():newComment.getImages());
         }
-        if(newComment.getState()==null){
-            newComment.setState(reservedComment.getState());
-        }
-        return newComment;
+        reservedComment.setVersion(reservedComment.getVersion()+1);
+        //State can't be change by APIs
+        return reservedComment;
     }
 }

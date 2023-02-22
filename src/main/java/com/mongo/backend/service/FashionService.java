@@ -4,6 +4,7 @@ import com.mongo.backend.mapper.FashionMapper;
 import com.mongo.backend.model.api.fashion.FashionApiDto;
 import com.mongo.backend.model.entity.Comments;
 import com.mongo.backend.model.entity.fashion.Fashion;
+import com.mongo.backend.repository.CommentJavaRepository;
 import com.mongo.backend.repository.FashionJavaRepository;
 import com.mongo.backend.repository.FashionRepository;
 import org.bson.types.ObjectId;
@@ -18,7 +19,8 @@ import reactor.core.publisher.Mono;
 public class FashionService {
     @Autowired
     private FashionRepository fashionRepository;
-
+    @Autowired
+    private CommentJavaRepository commentJavaRepository;
     @Autowired
     private FashionJavaRepository fashionJavaRepository;
 
@@ -29,44 +31,60 @@ public class FashionService {
                 .doOnSubscribe(s -> logger.debug("Searching Users within {}"))
                 .doOnComplete(() -> logger.debug("Users within {} retrieved"));
     }
-    public Mono<FashionApiDto> findById(String Id){
-        return fashionRepository.findById(Id).map(FashionMapper :: toApi)
+
+    public Mono<FashionApiDto> findById(String Id) {
+        return fashionRepository.findById(Id).map(FashionMapper::toApi)
                 .doOnSubscribe(s -> logger.debug("Searching User within {}"))
-                .doOnNext(m -> logger.debug("Users within {} retrieved",m.getUniqueId()));
+                .doOnNext(m -> logger.debug("Users within {} retrieved", m.getUniqueId()));
     }
-    public Fashion setDefaults(Fashion fashion){
+
+    public Fashion setDefaults(Fashion fashion) {
         logger.info(fashion.toString());
         return fashion.setUniqueId(ObjectId.get().toHexString());
     }
+
     public Mono<FashionApiDto> create(Mono<FashionApiDto> item) {
         return item.map(FashionMapper::toEntity)
                 .map(this::setDefaults)
                 .flatMap(fashionRepository::save)
-                .doOnSuccess(a-> logger.info("Successfully Created {}",a.getpId()))
+                .doOnSuccess(a -> logger.info("Successfully Created {}", a.getpId()))
                 .map(FashionMapper::toApi)
                 .doOnSubscribe(s -> logger.info("Creating {}", item))
                 .doOnNext(q -> logger.info("Created {}", q));
     }
-    public Mono<FashionApiDto> updateFashionProduct(FashionApiDto fashionApiDto){
+
+    public Mono<FashionApiDto> updateFashionProduct(FashionApiDto fashionApiDto) {
         return fashionJavaRepository.updateFashion(fashionApiDto);
     }
-    public Flux<FashionApiDto> searchFashionProducts(String text){
-        return  fashionJavaRepository.searchFashionProducts(text);
+
+    public Flux<FashionApiDto> searchFashionProducts(String text) {
+        return fashionJavaRepository.searchFashionProducts(text);
     }
 
     public Flux<FashionApiDto> findAllAvailable() {
-        return  fashionRepository.findAllByIsVisibleTrue();
+        return fashionRepository.findAllByIsVisibleTrue();
     }
 
-    public Mono<Comments> addComment(Comments com){
+    public Mono<Comments> addComment(Comments com) {
         return fashionRepository.findById(com.getProductUniqueId())
-                .flatMap(a->fashionJavaRepository.add(a,com))
-                .doOnSuccess(s-> logger.info("Comment Added with Id ={}",s.getUniqueId()));
+                .flatMap(aa -> fashionJavaRepository.updateRating(aa,com))
+                .flatMap(a -> fashionJavaRepository.add(a, com))
+                .doOnSuccess(s -> logger.info("Comment Added with Id ={}", s.getUniqueId()));
+    }
+    public Mono<Comments> updateCommentFields(Comments newCom,Comments oldCom){
+        logger.info("Comment Updated Retrived {}",newCom.getUniqueId());
+//        return Mono.just(Utils.patchComment(newCom,oldCom));
+        return Mono.just(newCom);
     }
 
     public Mono<Comments> updateComment(Comments com) {
-        return com.getCommentText().equals("Cant Update")?Mono.just(new Comments().setCommentText("Cant Update")):fashionRepository.findById(com.getProductUniqueId())
-                .flatMap(a->fashionJavaRepository.updateComment(a,com))
-                .doOnSuccess(s-> logger.info("Comment Added with Id ={}",s.getUniqueId()));
+        return com.getCommentText().equals("Cant Update") ?
+                Mono.just(new Comments().setCommentText("Cant Update")) :
+                fashionRepository.findById(com.getProductUniqueId())
+                        .flatMap(fashion -> fashionJavaRepository.dropRating(fashion, com))
+                        .flatMap(fashion -> commentJavaRepository.getComment(com.getAccountId(), com.getUniqueId()));
+//                        .flatMap(comments -> updateCommentFields(com, comments))
+//                        .doOnNext(a->logger.info("updateCommentFields Done!"))
+//                        .flatMap(this::addComment);
     }
 }

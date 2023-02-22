@@ -69,9 +69,11 @@ public class CommentService {
             throw new AccountValidationException("Account is Not Active");
         log.info("Account Validated id=[{}]", a.getUniqueId());
         return post ? Mono.just(item).flatMap(comment->commentJavaRepository.add(a, comment)):
-                Mono.just(item).flatMap(comment->commentJavaRepository.update(a, comment));
+                Mono.just(item).flatMap(this::updateRatingFashion);
     }
-
+    private Mono<Comments> updateRatingFashion(Comments comment){
+        return commentJavaRepository.update(comment);
+    }
     public Mono<CommentsApiDto> update(CommentsApiDto item) {
         return accountService.findById(item.getAccountId())
                 .map(UserAccountMapper::toEntity)
