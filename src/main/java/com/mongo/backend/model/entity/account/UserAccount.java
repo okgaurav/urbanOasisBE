@@ -19,8 +19,18 @@ public class UserAccount {
     private String profileImage;
     private String Address;
     private BigInteger phoneNo;
+    private List<Address> addresses = List.of();
     private boolean isActive;
     private List<Comments> userComments = List.of();
+
+    public List<Address> getAddresses() {
+        return addresses;
+    }
+
+    public UserAccount setAddresses(List<Address> addresses) {
+        this.addresses = addresses;
+        return this;
+    }
 
     public String getUniqueId() {
         return uniqueId;

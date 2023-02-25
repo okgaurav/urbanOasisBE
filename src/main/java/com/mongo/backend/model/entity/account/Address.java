@@ -12,6 +12,7 @@ import java.util.List;
 @Document
 public class Address {
     @Id
+    private String addressId;
     private String houseNo;
     private String street;
     private String addressLine1;
@@ -21,6 +22,15 @@ public class Address {
     private String state;
     private String country;
     private List<String> phoneNumber = List.of();
+
+    public String getAddressId() {
+        return addressId;
+    }
+
+    public Address setAddressId(String addressId) {
+        this.addressId = addressId;
+        return this;
+    }
 
     public String getHouseNo() {
         return houseNo;

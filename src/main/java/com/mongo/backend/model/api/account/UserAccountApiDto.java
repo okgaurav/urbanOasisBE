@@ -16,11 +16,20 @@ public class UserAccountApiDto {
     private String Address;
     private BigInteger phoneNo;
     private boolean isActive;
-
+    private List<AddressApiDto> addresses = List.of();
     private List<Comments> userComments;
 
     public String getUniqueId() {
         return uniqueId;
+    }
+
+    public List<AddressApiDto> getAddresses() {
+        return addresses;
+    }
+
+    public UserAccountApiDto setAddresses(List<AddressApiDto> addresses) {
+        this.addresses = addresses;
+        return this;
     }
 
     public UserAccountApiDto setUniqueId(String uniqueId) {

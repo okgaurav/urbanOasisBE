@@ -8,6 +8,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class AddressApiDto {
+    private String addressId;
     private String houseNo;
     private String street;
     private String addressLine1;
@@ -17,6 +18,15 @@ public class AddressApiDto {
     private String state;
     private String country;
     private List<String> phoneNumber = List.of();
+
+    public String getAddressId() {
+        return addressId;
+    }
+
+    public AddressApiDto setAddressId(String addressId) {
+        this.addressId = addressId;
+        return this;
+    }
 
     public String getHouseNo() {
         return houseNo;
