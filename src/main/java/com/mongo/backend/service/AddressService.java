@@ -32,6 +32,8 @@ public class AddressService {
     }
     public Mono<AddressApiDto> delete(String id){
         Mono<AddressApiDto> dtoMono = findById(id);
-        return addressRepository.deleteById(id).thenReturn(Objects.requireNonNull(dtoMono.block()));
+        return dtoMono.flatMap(addressApiDto -> addressJavaRepository.delete(AddressMapper.toEntity(addressApiDto)))
+                .flatMap(address -> addressRepository.deleteById(id))
+                .thenReturn(Objects.requireNonNull(dtoMono.block()));
     }
 }

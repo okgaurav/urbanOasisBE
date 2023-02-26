@@ -55,4 +55,11 @@ public class AddressJavaRepository {
                 }
         );
     }
+    public Mono<Address> delete(Address address) {
+        var query = new Query().addCriteria(where("uniqueId").is(address.getAccountId()));
+        Update update = new Update().pull("addresses", Query.query(where("addressId").is(address.getAddressId())));
+        return mongoTemplate.updateFirst(query,update,UserAccount.class)
+                .thenReturn(address)
+                .doOnSuccess(s -> log.info("Address Deleted from Account with Address Id: {}", s.getAccountId()));
+    }
 }
