@@ -1,6 +1,7 @@
 package com.mongo.backend.model.api.account;
 
-import com.mongo.backend.model.entity.Comments;
+import com.mongo.backend.model.api.CommentsApiDto;
+import com.mongo.backend.model.api.cart.UserCartApiDto;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 
@@ -17,7 +18,8 @@ public class UserAccountApiDto {
     private BigInteger phoneNo;
     private boolean isActive;
     private List<AddressApiDto> addresses = List.of();
-    private List<Comments> userComments;
+    private List<CommentsApiDto> userComments;
+    private List<UserCartApiDto> cart = List.of();
 
     public String getUniqueId() {
         return uniqueId;
@@ -82,12 +84,21 @@ public class UserAccountApiDto {
         return this;
     }
 
-    public List<Comments> getUserComments() {
+    public List<CommentsApiDto> getUserComments() {
         return userComments;
     }
 
-    public UserAccountApiDto setUserComments(List<Comments> userComments) {
+    public UserAccountApiDto setUserComments(List<CommentsApiDto> userComments) {
         this.userComments = userComments;
+        return this;
+    }
+
+    public List<UserCartApiDto> getCart() {
+        return cart;
+    }
+
+    public UserAccountApiDto setCart(List<UserCartApiDto> cart) {
+        this.cart = cart;
         return this;
     }
 }
