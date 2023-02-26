@@ -9,6 +9,7 @@ import java.util.List;
 @NoArgsConstructor
 public class AddressApiDto {
     private String addressId;
+    private String accountId;
     private String houseNo;
     private String street;
     private String addressLine1;
@@ -21,6 +22,15 @@ public class AddressApiDto {
 
     public String getAddressId() {
         return addressId;
+    }
+
+    public String getAccountId() {
+        return accountId;
+    }
+
+    public AddressApiDto setAccountId(String accountId) {
+        this.accountId = accountId;
+        return this;
     }
 
     public AddressApiDto setAddressId(String addressId) {

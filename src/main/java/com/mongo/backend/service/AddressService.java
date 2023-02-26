@@ -2,6 +2,7 @@ package com.mongo.backend.service;
 
 import com.mongo.backend.mapper.AddressMapper;
 import com.mongo.backend.model.api.account.AddressApiDto;
+import com.mongo.backend.repository.AddressJavaRepository;
 import com.mongo.backend.repository.AddressRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -14,12 +15,14 @@ import java.util.Objects;
 public class AddressService {
 
     private final AddressRepository addressRepository;
+    private final AddressJavaRepository addressJavaRepository;
     @Autowired
-    public AddressService(AddressRepository addressRepository) {
+    public AddressService(AddressRepository addressRepository, AddressJavaRepository addressJavaRepository) {
         this.addressRepository = addressRepository;
+        this.addressJavaRepository = addressJavaRepository;
     }
     public Mono<AddressApiDto> saveOrUpdate(AddressApiDto addressApiDto){
-        return addressRepository.save(AddressMapper.toEntity(addressApiDto)).map(AddressMapper::toApi);
+        return addressRepository.save(AddressMapper.toEntity(addressApiDto)).flatMap(addressJavaRepository::save).map(AddressMapper::toApi);
     }
     public Flux<AddressApiDto> getAll(){
         return addressRepository.findAll().map(AddressMapper::toApi);

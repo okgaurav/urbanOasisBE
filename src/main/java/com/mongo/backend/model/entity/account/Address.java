@@ -13,6 +13,7 @@ import java.util.List;
 public class Address {
     @Id
     private String addressId;
+    private String accountId;
     private String houseNo;
     private String street;
     private String addressLine1;
@@ -25,6 +26,15 @@ public class Address {
 
     public String getAddressId() {
         return addressId;
+    }
+
+    public String getAccountId() {
+        return accountId;
+    }
+
+    public Address setAccountId(String accountId) {
+        this.accountId = accountId;
+        return this;
     }
 
     public Address setAddressId(String addressId) {
