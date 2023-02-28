@@ -3,26 +3,23 @@ package com.mongo.backend.model.api.cart;
 import com.mongo.backend.model.api.fashion.FashionApiDto;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
 @AllArgsConstructor
 @NoArgsConstructor
 public class UserCollectionApiDto {
-    @NotNull
     private String collectionId;
+    private String accountId;
     private Integer collectionTotal;
     private String coupanCode;
     private Integer discount;
     private List<FashionApiDto> products = List.of();
-
-    @NotNull
     public String getCollectionId() {
         return collectionId;
     }
 
-    public UserCollectionApiDto setCollectionId(@NotNull String collectionId) {
+    public UserCollectionApiDto setCollectionId(String collectionId) {
         this.collectionId = collectionId;
         return this;
     }
@@ -60,6 +57,15 @@ public class UserCollectionApiDto {
 
     public UserCollectionApiDto setProducts(List<FashionApiDto> products) {
         this.products = products;
+        return this;
+    }
+
+    public String getAccountId() {
+        return accountId;
+    }
+
+    public UserCollectionApiDto setAccountId(String accountId) {
+        this.accountId = accountId;
         return this;
     }
 }

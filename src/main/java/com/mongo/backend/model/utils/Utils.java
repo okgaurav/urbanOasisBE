@@ -1,5 +1,6 @@
 package com.mongo.backend.model.utils;
 
+import com.mongo.backend.config.Opt;
 import com.mongo.backend.model.api.fashion.FashionApiDto;
 import com.mongo.backend.model.entity.Comments;
 import org.springframework.data.mongodb.core.query.Update;
@@ -69,4 +70,14 @@ public class Utils {
         //State can't be change by APIs
         return reservedComment;
     }
+    public void mapObjectOrNull(Object first, Opt fun){
+        fun.mapObjectOrNull(first);
+    }
+    public static boolean isNull(Object one){
+        return one==null;
+    }
+    public static boolean isNotNull(Object one){
+        return one!=null;
+    }
+
 }

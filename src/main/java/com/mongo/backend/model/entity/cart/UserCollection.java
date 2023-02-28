@@ -3,30 +3,24 @@ package com.mongo.backend.model.entity.cart;
 import com.mongo.backend.model.entity.fashion.Fashion;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
-import org.jetbrains.annotations.NotNull;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.List;
 
-@Document
 @AllArgsConstructor
 @NoArgsConstructor
 public class UserCollection {
-    @Id
-    @NotNull
     private String collectionId;
+    private String accountId;
     private Integer collectionTotal;
     private String coupanCode;
     private Integer discount;
     private List<Fashion> products = List.of();
 
-    @NotNull
     public String getCollectionId() {
         return collectionId;
     }
 
-    public UserCollection setCollectionId(@NotNull String collectionId) {
+    public UserCollection setCollectionId(String collectionId) {
         this.collectionId = collectionId;
         return this;
     }
@@ -64,6 +58,15 @@ public class UserCollection {
 
     public UserCollection setProducts(List<Fashion> products) {
         this.products = products;
+        return this;
+    }
+
+    public String getAccountId() {
+        return accountId;
+    }
+
+    public UserCollection setAccountId(String accountId) {
+        this.accountId = accountId;
         return this;
     }
 }

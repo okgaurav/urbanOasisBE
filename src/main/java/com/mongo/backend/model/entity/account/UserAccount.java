@@ -2,6 +2,7 @@ package com.mongo.backend.model.entity.account;
 
 import com.mongo.backend.model.entity.Comments;
 import com.mongo.backend.model.entity.cart.UserCart;
+import com.mongo.backend.model.entity.cart.UserCollection;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
@@ -18,12 +19,12 @@ public class UserAccount {
     private String uniqueId;
     private String userType;
     private String profileImage;
-    private String Address;
     private BigInteger phoneNo;
     private List<Address> addresses = List.of();
     private boolean isActive;
     private List<Comments> userComments = List.of();
-    private List<UserCart> cart = List.of();
+    private UserCart cart;
+    private List<UserCollection> collections = List.of();;
 
     public List<Address> getAddresses() {
         return addresses;
@@ -61,14 +62,6 @@ public class UserAccount {
         return this;
     }
 
-    public String getAddress() {
-        return Address;
-    }
-
-    public UserAccount setAddress(String address) {
-        Address = address;
-        return this;
-    }
 
     public BigInteger getPhoneNo() {
         return phoneNo;
@@ -97,12 +90,21 @@ public class UserAccount {
         return this;
     }
 
-    public List<UserCart> getCart() {
+    public UserCart getCart() {
         return cart;
     }
 
-    public UserAccount setCart(List<UserCart> cart) {
+    public UserAccount setCart(UserCart cart) {
         this.cart = cart;
+        return this;
+    }
+
+    public List<UserCollection> getCollections() {
+        return collections;
+    }
+
+    public UserAccount setCollections(List<UserCollection> collections) {
+        this.collections = collections;
         return this;
     }
 }

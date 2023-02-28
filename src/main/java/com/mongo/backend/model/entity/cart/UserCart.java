@@ -2,21 +2,13 @@ package com.mongo.backend.model.entity.cart;
 
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
-import lombok.NonNull;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
-
-import java.util.List;
 
 @AllArgsConstructor
 @NoArgsConstructor
-@Document
 public class UserCart {
-    @Id
-    @NonNull
     private String cartId;
     private String accountId;
-    private List<UserCollection> collectionList = List.of();
+    private UserCollection collection;
     private Delivery deliveryDetails;
     private Integer cartValue;
 
@@ -38,12 +30,12 @@ public class UserCart {
         return this;
     }
 
-    public List<UserCollection> getCollectionList() {
-        return collectionList;
+    public UserCollection getCollection() {
+        return collection;
     }
 
-    public UserCart setCollectionList(List<UserCollection> collectionList) {
-        this.collectionList = collectionList;
+    public UserCart setCollection(UserCollection collection) {
+        this.collection = collection;
         return this;
     }
 

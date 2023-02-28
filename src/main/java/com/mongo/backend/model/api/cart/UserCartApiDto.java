@@ -1,14 +1,9 @@
 package com.mongo.backend.model.api.cart;
 
-import lombok.NonNull;
-
-import java.util.List;
-
 public class UserCartApiDto {
-    @NonNull
     private String cartId;
     private String accountId;
-    private List<UserCollectionApiDto> collectionList = List.of();
+    private UserCollectionApiDto collection;
     private DeliveryApiDto deliveryDetails;
     private Integer cartValue;
 
@@ -30,12 +25,12 @@ public class UserCartApiDto {
         return this;
     }
 
-    public List<UserCollectionApiDto> getCollectionList() {
-        return collectionList;
+    public UserCollectionApiDto getCollection() {
+        return collection;
     }
 
-    public UserCartApiDto setCollectionList(List<UserCollectionApiDto> collectionList) {
-        this.collectionList = collectionList;
+    public UserCartApiDto setCollection(UserCollectionApiDto collection) {
+        this.collection = collection;
         return this;
     }
 

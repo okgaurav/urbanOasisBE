@@ -18,7 +18,7 @@ public class CommentsApiDto {
     private String dateTime;
     private String commentText;
     private Integer rating;
-    private List<String> images;
+    private List<String> images = List.of();;
     private State state;
     private Integer version;
     public Integer getVersion() {

@@ -6,6 +6,6 @@ import reactor.core.publisher.Flux;
 
 public interface UserAccountRepository extends ReactiveMongoRepository<UserAccount,String> {
     Flux<UserAccount> findAllByIsActiveTrue();
-    Flux<UserAccount>findAll();
+
 
 }

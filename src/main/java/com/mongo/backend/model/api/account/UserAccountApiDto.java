@@ -2,6 +2,7 @@ package com.mongo.backend.model.api.account;
 
 import com.mongo.backend.model.api.CommentsApiDto;
 import com.mongo.backend.model.api.cart.UserCartApiDto;
+import com.mongo.backend.model.api.cart.UserCollectionApiDto;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 
@@ -14,12 +15,12 @@ public class UserAccountApiDto {
     private String uniqueId;
     private String userType;
     private String profileImage;
-    private String Address;
     private BigInteger phoneNo;
     private boolean isActive;
     private List<AddressApiDto> addresses = List.of();
-    private List<CommentsApiDto> userComments;
-    private List<UserCartApiDto> cart = List.of();
+    private List<CommentsApiDto> userComments = List.of();
+    private UserCartApiDto cart;
+    private List<UserCollectionApiDto> collections = List.of();
 
     public String getUniqueId() {
         return uniqueId;
@@ -57,15 +58,6 @@ public class UserAccountApiDto {
         return this;
     }
 
-    public String getAddress() {
-        return Address;
-    }
-
-    public UserAccountApiDto setAddress(String address) {
-        Address = address;
-        return this;
-    }
-
     public BigInteger getPhoneNo() {
         return phoneNo;
     }
@@ -93,12 +85,21 @@ public class UserAccountApiDto {
         return this;
     }
 
-    public List<UserCartApiDto> getCart() {
+    public UserCartApiDto getCart() {
         return cart;
     }
 
-    public UserAccountApiDto setCart(List<UserCartApiDto> cart) {
+    public UserAccountApiDto setCart(UserCartApiDto cart) {
         this.cart = cart;
+        return this;
+    }
+
+    public List<UserCollectionApiDto> getCollections() {
+        return collections;
+    }
+
+    public UserAccountApiDto setCollections(List<UserCollectionApiDto> collections) {
+        this.collections = collections;
         return this;
     }
 }
